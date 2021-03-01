@@ -50,10 +50,11 @@ class Quiz {
     }
     startQz() {
         dispResultQz.innerHTML = '取得中';
-        fetch('https://opentdb.com/api.php?amount=10')
+        fetch('/quiz/api')
             .then(response => response.json())
-            .then(qzData => {
-                this.questions = qzData.results;
+            .then(questions => {
+                this.questions = questions;
+                console.log(this.questions);
                 dispResultQz.innerHTML = '取得完了';
                 this.dispQz();
             }).catch(e => console.log(e));
