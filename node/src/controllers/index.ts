@@ -32,8 +32,8 @@ export const quizApiController: RequestHandler = async (req, res, next) => {
         if(qzData.results){
           quiz.questions = qzData.results.slice() ;
           for(let i = 0; i < quiz.questions.length; i++ ){
-            let questionAnswersBox = quiz.questions[i].incorrect_answers;
-            let qzTrue = quiz.questions[i].correct_answer;
+            const questionAnswersBox = quiz.questions[i].incorrect_answers;
+            const qzTrue = quiz.questions[i].correct_answer;
             questionAnswersBox.push(qzTrue);
             shuffle(questionAnswersBox);
           }
