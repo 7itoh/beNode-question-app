@@ -1,22 +1,3 @@
-/**
- * Quiz App
- * 
- * 出力
- * @const dispResultQz      Quiz出力結果の表示
- * @const dispTitleQz       Quizタイトルの表示
- * @const displevelQz       Quiz難易度の表示
- * @const dispQuestionQz    Quiz問題の表示
- * 
- * @const dispAnswersQz     Quiz回答リストの表示
- * 
- * Button
- * @const startBtnQz        Quizの開始ボタン
- * @const restartBtnQz      Quizの再開ボタン
- * 
- * @const dispStartBtnQz    Quiz開始ボタンの再表示
- * @const dispRestartBtnQz  Quiz再開ボタンの再非表示
- * */ 
-
 const dispResultQz: HTMLElement = document.getElementById('display_result_quiz_message')!;
 const dispNumQz: HTMLElement = document.getElementById('display_quiz_number')!;
 const dispTitleQz: HTMLElement = document.getElementById('display_quiz_title')!;
@@ -32,6 +13,7 @@ const dispRestartBtnQz = restartBtnQz.style.display;
 
 interface Quiz { 
     questions: [],
+    answerBox: [],
     onesection: [],
     trueAnswer: string,
     correct: number,
@@ -42,6 +24,7 @@ interface Quiz {
 class Quiz { 
     constructor() {
         this.questions = [];
+        this.answerBox = [];
         this.onesection = [];
         this.trueAnswer = '';
         this.correct = 0;
@@ -52,9 +35,9 @@ class Quiz {
         dispResultQz.innerHTML = '取得中';
         fetch('/quiz/api')
             .then(response => response.json())
-            .then(questions => {
-                this.questions = questions;
-                console.log(this.questions);
+            .then(quiz => {
+                this.questions = quiz.questions;
+                this.answerBox = quiz.answersBox;
                 dispResultQz.innerHTML = '取得完了';
                 this.dispQz();
             }).catch(e => console.log(e));
@@ -62,26 +45,21 @@ class Quiz {
     dispQz() {
         let id = this.questionId;
         let num = id + 1
-        let qzSection = this.questions[id].incorrect_answers;
+
         let qzTrue = this.questions[id].correct_answer;
-
-        this.onesection = qzSection;
         this.trueAnswer = qzTrue;
-        this.onesection.push(this.trueAnswer);
-        // 答えシャッフルの実行
-        this.shuffle(this.onesection);
 
-        // ディスプレイ出力
-        let qzCategory = this.questions[id].category;
-        let qzDifficult = this.questions[id].difficulty;
-        let qzQuestion = this.questions[id].question;
+        this.onesection = this.answerBox[id];
+
+        const qzCategory = this.questions[id].category;
+        const qzDifficult = this.questions[id].difficulty;
+        const qzQuestion = this.questions[id].question;
 
         dispNumQz.innerHTML = `問題 : No. ${num}`;
         dispTitleQz.innerHTML = `出題 : ${qzCategory}`;
         displevelQz.innerHTML = `難易度 : ${qzDifficult}`;
         dispQuestionQz.innerHTML = qzQuestion
         
-        // this.onesectionの展開
         this.onesection.forEach(quiz => {
             const trQz = document.createElement('tr');
             const tdQz = document.createElement('td');
@@ -94,13 +72,6 @@ class Quiz {
 
             this.checkQz(btnQz);
         })
-    }
-    shuffle([...onsection]) {
-        for (let i = onsection.length - 1; i >= 0; i--) { 
-            const j = Math.floor(Math.random() * (i + 1));
-            [onsection[i], onsection[j]] = [onsection[j], onsection[i]];
-        }
-        return this.onesection = onsection;
     }
     checkQz(btnQz) {
         btnQz.addEventListener('click', () => {
@@ -119,7 +90,6 @@ class Quiz {
         restartBtnQz.style.display = '';
     }
     restart() {     
-        // 初期化
         dispResultQz.innerHTML = '';
         this.questions = [];
         this.onesection = [];

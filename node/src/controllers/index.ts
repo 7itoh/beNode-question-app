@@ -18,13 +18,27 @@ export const quizApiController: RequestHandler = async (req, res, next) => {
       await fetch(url)
       .then(response => response.json())
       .then(qzData => {
-        const data = {
-          questions: []
+        const quiz = {
+          questions: [],
+          answersBox: []
+        }
+        function shuffle ([...onsection]) {
+          for (let i = onsection.length - 1; i >= 0; i--) { 
+              const j = Math.floor(Math.random() * (i + 1));
+              [onsection[i], onsection[j]] = [onsection[j], onsection[i]];
+          }
+          quiz.answersBox.push(onsection);
         }
         if(qzData.results){
-          data.questions = qzData.results;
+          quiz.questions = qzData.results.slice() ;
+          for(let i = 0; i < quiz.questions.length; i++ ){
+            let questionAnswersBox = quiz.questions[i].incorrect_answers;
+            let qzTrue = quiz.questions[i].correct_answer;
+            questionAnswersBox.push(qzTrue);
+            shuffle(questionAnswersBox);
+          }
         }
-        res.json(data.questions);
+        res.json(quiz);
       }).catch(e => console.log(e));
     } catch(err) {
       console.log(err);
